@@ -1,0 +1,120 @@
+﻿@page
+@model AttendanceClient.Pages.Schedule.IndexModel
+@using AttendanceClient.Dto.Schedule
+@using AttendanceClient.Dto.StudentSchedules
+@using AttendanceGrpcServer
+@{
+}
+
+
+<form method="post">
+	Year:
+	<select asp-for="year">
+
+		@foreach (int i in Model.scheduleYear)
+		{
+
+			<option value="@i">@i</option>
+
+		}
+	</select>
+	Week:
+	<select asp-for="week">
+
+		@for (int i = 1; i <= 52; i++)
+		{
+			<option value="@i">@Model.schedulesWeek[i - 1]</option>
+		}
+	</select>
+	<button type="submit" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Filter</button>
+
+</form>
+
+<div class="relative overflow-x-auto">
+	<table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+		<thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+			<tr>
+				<th scope="col" class="px-6 py-3">Slot</th>
+				<th scope="col" class="px-6 py-3">Monday</th>
+				<th scope="col" class="px-6 py-3">Tuesday</th>
+				<th scope="col" class="px-6 py-3">Wednesday</th>
+				<th scope="col" class="px-6 py-3">Thursday</th>
+				<th scope="col" class="px-6 py-3">Friday</th>
+				<th scope="col" class="px-6 py-3">Saturday</th>
+				<th scope="col" class="px-6 py-3">Sunday</th>
+
+
+			</tr>
+		</thead>
+
+		<tbody>
+			@* //A *@
+			@for (int i = 1; i <= 4; i++)
+			{
+				<tr>
+					<td>Slot @i</td>
+					@for (int j = 1; j <= 7; j++)
+					{
+						<td>
+							@foreach ( ScheduleResponse schedule in Model.Schedules)
+							{
+								@if ((int) schedule.Date.ToDateTime().DayOfWeek == j)
+								{
+									@if (schedule.Slot == i)
+									{
+										<div>
+											@schedule.Course.Name - @schedule.Course.Code at @schedule.Room.Name
+											<br />
+											@if (User.IsInRole("STUDENT"))
+											{
+												<span class="text-blue-700">
+													@if ((int)schedule.StudentSchedules.ElementAt(0).Status == 1)
+													{
+														<div class="h-2.5 w-2.5 rounded-full bg-red-500 me-2"></div>
+														<span class="text-red-500">
+															@(((Status) schedule.StudentSchedules.ElementAt(0).Status).ToString())
+														</span>
+													}
+													else if ((int)schedule.StudentSchedules.ElementAt(0).Status == 2)
+													{
+														<div class="h-2.5 w-2.5 rounded-full bg-green-500 me-2"></div>
+														<span class="text-green-500">
+															@(((Status)schedule.StudentSchedules.ElementAt(0).Status).ToString())
+														</span>
+													}
+													else
+													{
+														<div class="h-2.5 w-2.5 rounded-full bg-blue-500 me-2"></div>
+														<span class="text-blue-500">
+															@(((Status)schedule.StudentSchedules.ElementAt(0).Status).ToString())
+														</span>
+													}
+												
+												</span>
+											}
+											else if (User.IsInRole("TEACHER"))
+											{
+												<a asp-page="/Attendance/Index" asp-route-scheduleId="@schedule.Id">Check attendance</a>
+											}
+
+										</div>
+									}
+
+								}
+
+
+							}
+						</td>
+					}
+
+
+				</tr>
+			}
+
+			@* //P *@
+
+
+
+		</tbody>
+	</table>
+</div>

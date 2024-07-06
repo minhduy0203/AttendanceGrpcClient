@@ -1,0 +1,27 @@
+syntax = "proto3";
+import "google/protobuf/timestamp.proto";
+option csharp_namespace = "AttendanceGrpcServer";
+import "Protos/schedule.proto";
+
+service StudentCourser
+{
+    rpc GetListStudentCourse (StudentCourseRequest) returns ( ListStudentCourse);
+}
+
+message ListStudentCourse {
+    repeated StudentCourseResponse result = 1;
+    string message = 2;
+}
+
+
+message StudentCourseResponse
+{
+  int32 StudentId = 1;
+  int32 CourseId = 2;
+  CourseDto Course = 4;
+}
+
+message StudentCourseRequest {
+    int32 id = 1;
+}
+
